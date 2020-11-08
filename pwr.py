@@ -54,7 +54,7 @@ while not shutdown:
     print("---------------------------------------------")
     print(f"Simulation time: {simulation_time}")
     for k,v in outputs.items():
-        print(f"{k}\t\t{v}")
+        print(f"{k}\t\t{round(v,1)}")
     print("---------------------------------------------")
 
     # Get inputs
