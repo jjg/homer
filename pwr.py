@@ -39,7 +39,11 @@ MAX_CONDENSER_TEMP = 100
 MAX_PRIMARY_PRESSURE = 100
 MAX_SECONDARY_PRESSURE = 100
 MAX_PUMP_RPM = 100
+MIN_TURBINE_PRESSURE = 50
+MAX_TURBINE_PRESSURE = 100
 MAX_TURBINE_RPM = 100
+MIN_GENERATOR_RPM = 25
+MAX_GENERATOR_RPM = 100
 MAX_GENERATOR_CURRENT = 100
 
 
@@ -97,7 +101,10 @@ while not shutdown:
     outputs["condenser_temp"] = (outputs["secondary_temp"] / 2)
 
     # turbine rpm
-    outputs["turbine_rpm"] = round(outputs["secondary_pressure"])
+    if outputs["secondary_pressure"] > MIN_TURBINE_PRESSURE:
+        outputs["turbine_rpm"] = round(outputs["secondary_pressure"])
+    else:
+        outputs["turbine_rpm"] = 0
 
     # generator current
     outputs["generator_current"] = (outputs["turbine_rpm"] * .09)
