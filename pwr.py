@@ -1,28 +1,33 @@
 # Initialize 
 
+# Base initial system temps off ambient temperature
+# TODO: Read this from a sensor
+AMBIENT_TEMP = 15.0
+
 # Internal state variables
 shutdown = False
 simulation_time = 0
 
 # Inputs
+# TODO: Find a way to initialize RPMs to zero w/o causing divide by zero...
 inputs = {
-    "requested_rod_position": 0,
-    "primary_pump_rpm": 0,
-    "secondary_pump_rpm": 0,
-    "condenser_pump_rpm": 0,
-    "turbine_bypass": 0,
+    "requested_rod_position": 1,
+    "primary_pump_rpm": 1,
+    "secondary_pump_rpm": 1,
+    "condenser_pump_rpm": 1,
+    "turbine_bypass": 0.0,
     "primary_relief_valve": False,
     "secondary_relief_valve": False,
 }
 
 # Outputs
 outputs = { 
-    "actual_rod_position": 0,
-    "primary_temp": 0.0,
+    "actual_rod_position": 1,
+    "primary_temp": AMBIENT_TEMP,
     "primary_pressure": 0.0,
-    "secondary_temp": 0.0,
+    "secondary_temp": AMBIENT_TEMP,
     "secondary_pressure": 0.0,
-    "condenser_temp": 0.0,
+    "condenser_temp": AMBIENT_TEMP,
     "turbine_rpm": 0,
     "generator_current": 0.0,
 }
@@ -41,17 +46,6 @@ MAX_GENERATOR_CURRENT = 100
 # Main loop
 while not shutdown:
 
-    # Calculate changes
-    # Each pass through this loop represents one second of simulation time
-    simulation_time += 1
-
-    # Rods can move one unit per second
-    if outputs["actual_rod_position"] >= inputs["requested_rod_position"]:
-        outputs["actual_rod_position"] -= 1
-    if outputs["actual_rod_position"] <= inputs["requested_rod_position"]:
-        outputs["actual_rod_position"] += 1
-
-
     # Display current status
     print("---------------------------------------------")
     print(f"Simulation time: {simulation_time}")
@@ -69,4 +63,43 @@ while not shutdown:
 
     if input("Ready to quit yet? ") == "yes":
         shutdown = True
+
+
+    # Calculate changes
+    # Each pass through this loop represents one second of simulation time
+    simulation_time += 1
+
+    # Rods can move one unit per second
+    if outputs["actual_rod_position"] > inputs["requested_rod_position"]:
+        outputs["actual_rod_position"] -= 1
+    if outputs["actual_rod_position"] < inputs["requested_rod_position"]:
+        outputs["actual_rod_position"] += 1
+
+    # primary temp
+    outputs["primary_temp"] = (outputs["primary_temp"] + outputs["actual_rod_position"]) - .1
+    if outputs["primary_temp"] < AMBIENT_TEMP:
+        outputs["primary_temp"] = AMBIENT_TEMP
+
+    # primary pressure
+    outputs["primary_pressure"] = (outputs["primary_temp"] / inputs["primary_pump_rpm"])
+
+    # secondary temp
+    outputs["secondary_temp"] += (outputs["primary_temp"] / 2)
+    if outputs["secondary_temp"] > outputs["primary_temp"]:
+        outputs["secondary_temp"] = outputs["primary_temp"]
+    if outputs["secondary_temp"] < AMBIENT_TEMP:
+        outputs["secondary_temp"] = AMBIENT_TEMP
+
+    # secondary pressure
+    outputs["secondary_pressure"] = (outputs["primary_temp"] / inputs["secondary_pump_rpm"])
+
+    # condenser temp
+    outputs["condenser_temp"] = (outputs["secondary_temp"] / 2)
+
+    # turbine rpm
+    outputs["turbine_rpm"] = round(outputs["secondary_pressure"])
+
+    # generator current
+    outputs["generator_current"] = (outputs["turbine_rpm"] * .09)
+
 
