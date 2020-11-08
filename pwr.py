@@ -3,6 +3,7 @@
 # Base initial system temps off ambient temperature
 # TODO: Read this from a sensor
 AMBIENT_TEMP = 15.0
+STEAM_GENERATOR_EFFICIENCY = 0.5
 
 # Internal state variables
 shutdown = False
@@ -33,6 +34,8 @@ outputs = {
 }
 
 # Thresholds
+MIN_ROD_POSITION = 0
+MAX_ROD_POSITION = 100
 MAX_PRIMARY_TEMP = 100
 MAX_SECONDARY_TEMP = 100
 MAX_CONDENSER_TEMP = 100
@@ -80,22 +83,26 @@ while not shutdown:
         outputs["actual_rod_position"] += 1
 
     # primary temp
-    outputs["primary_temp"] = (outputs["primary_temp"] + outputs["actual_rod_position"]) - .1
+    outputs["primary_temp"] = outputs["primary_temp"] + outputs["actual_rod_position"]
+    # Subtract pump effect
+    outputs["primary_temp"] = outputs["primary_temp"] - inputs["primary_pump_rpm"]
+    # Never fall below ambient temp
     if outputs["primary_temp"] < AMBIENT_TEMP:
         outputs["primary_temp"] = AMBIENT_TEMP
 
     # primary pressure
-    outputs["primary_pressure"] = (outputs["primary_temp"] / inputs["primary_pump_rpm"])
+    outputs["primary_pressure"] = outputs["primary_temp"]
 
     # secondary temp
-    outputs["secondary_temp"] += (outputs["primary_temp"] / 2)
-    if outputs["secondary_temp"] > outputs["primary_temp"]:
-        outputs["secondary_temp"] = outputs["primary_temp"]
+    # TODO: Add influence of primary pump
+    outputs["secondary_temp"] += (outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY)
+    if outputs["secondary_temp"] > (outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY):
+        outputs["secondary_temp"] = outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY
     if outputs["secondary_temp"] < AMBIENT_TEMP:
         outputs["secondary_temp"] = AMBIENT_TEMP
 
     # secondary pressure
-    outputs["secondary_pressure"] = (outputs["primary_temp"] / inputs["secondary_pump_rpm"])
+    outputs["secondary_pressure"] = outputs["secondary_temp"] 
 
     # condenser temp
     outputs["condenser_temp"] = (outputs["secondary_temp"] / 2)
