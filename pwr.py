@@ -4,6 +4,10 @@
 # TODO: Read this from a sensor
 AMBIENT_TEMP = 15.0
 STEAM_GENERATOR_EFFICIENCY = 0.5
+GENERATOR_EFFICIENCY = 0.75
+MIN_STEAM_GENERATOR_TEMP = 25
+MIN_TURBINE_PRESSURE = 10 
+MIN_GENERATOR_RPM = 20
 
 # Internal state variables
 shutdown = False
@@ -14,10 +18,6 @@ simulation_time = 0
 inputs = {
     "requested_rod_position": 1,
     "primary_pump_rpm": 1,
-    "secondary_pump_rpm": 1,
-    "condenser_pump_rpm": 1,
-    "turbine_bypass": 0.0,
-    "primary_relief_valve": False,
     "secondary_relief_valve": False,
 }
 
@@ -25,29 +25,10 @@ inputs = {
 outputs = { 
     "actual_rod_position": 1,
     "primary_temp": AMBIENT_TEMP,
-    "primary_pressure": 0.0,
-    "secondary_temp": AMBIENT_TEMP,
     "secondary_pressure": 0.0,
-    "condenser_temp": AMBIENT_TEMP,
     "turbine_rpm": 0,
     "generator_current": 0.0,
 }
-
-# Thresholds
-MIN_ROD_POSITION = 0
-MAX_ROD_POSITION = 100
-MAX_PRIMARY_TEMP = 100
-MAX_SECONDARY_TEMP = 100
-MAX_CONDENSER_TEMP = 100
-MAX_PRIMARY_PRESSURE = 100
-MAX_SECONDARY_PRESSURE = 100
-MAX_PUMP_RPM = 100
-MIN_TURBINE_PRESSURE = 50
-MAX_TURBINE_PRESSURE = 100
-MAX_TURBINE_RPM = 100
-MIN_GENERATOR_RPM = 25
-MAX_GENERATOR_RPM = 100
-MAX_GENERATOR_CURRENT = 100
 
 
 # Main loop
@@ -86,26 +67,15 @@ while not shutdown:
     outputs["primary_temp"] = outputs["primary_temp"] + outputs["actual_rod_position"]
     # Subtract pump effect
     outputs["primary_temp"] = outputs["primary_temp"] - inputs["primary_pump_rpm"]
+    # TODO: Subtract for fuel depletion
     # Never fall below ambient temp
     if outputs["primary_temp"] < AMBIENT_TEMP:
         outputs["primary_temp"] = AMBIENT_TEMP
 
-    # primary pressure
-    outputs["primary_pressure"] = outputs["primary_temp"]
-
-    # secondary temp
-    # TODO: Add influence of primary pump
-    outputs["secondary_temp"] += (outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY)
-    if outputs["secondary_temp"] > (outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY):
-        outputs["secondary_temp"] = outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY
-    if outputs["secondary_temp"] < AMBIENT_TEMP:
-        outputs["secondary_temp"] = AMBIENT_TEMP
-
     # secondary pressure
-    outputs["secondary_pressure"] = outputs["secondary_temp"] 
-
-    # condenser temp
-    outputs["condenser_temp"] = (outputs["secondary_temp"] / 2)
+    # TODO: pressure should drop when primary temp drops
+    if outputs["primary_temp"] > MIN_STEAM_GENERATOR_TEMP:
+        outputs["secondary_pressure"] += (outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY) / (100 - inputs["primary_pump_rpm"]) 
 
     # turbine rpm
     if outputs["secondary_pressure"] > MIN_TURBINE_PRESSURE:
@@ -114,6 +84,4 @@ while not shutdown:
         outputs["turbine_rpm"] = 0
 
     # generator current
-    outputs["generator_current"] = (outputs["turbine_rpm"] * .09)
-
-
+    outputs["generator_current"] = (outputs["turbine_rpm"] * GENERATOR_EFFICIENCY)
