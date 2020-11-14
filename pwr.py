@@ -1,87 +1,67 @@
-# Initialize 
+class PWR:
 
-# Base initial system temps off ambient temperature
-# TODO: Read this from a sensor
-AMBIENT_TEMP = 15.0
-STEAM_GENERATOR_EFFICIENCY = 0.5
-GENERATOR_EFFICIENCY = 0.75
-MIN_STEAM_GENERATOR_TEMP = 25
-MIN_TURBINE_PRESSURE = 10 
-MIN_GENERATOR_RPM = 20
+    MIN_STEAM_GENERATOR_TEMP = 25
+    MIN_TURBINE_PRESSURE = 10
+    MIN_GENERATOR_RPM = 20
 
-# Internal state variables
-shutdown = False
-simulation_time = 0
+    def __init__(self, ambient_temp):
+        self.ambient_temp = ambient_temp
+        self.simulation_time = 0
+        self.rod_position = 0
+        self.target_rod_position = 0
+        self.primary_pump_rpm = 0
+        self.primary_relief_valve = False
+        self.primary_temp = self.ambient_temp
+        self.primary_pressure = 0
+        self.secondary_pump_rpm = 0
+        self.secondary_relief_valve = False
+        self.secondary_temp = self.ambient_temp
+        self.secondary_pressure = 0
+        self.condenser_pump_rpm = 0
+        self.condenser_temp = self.ambient_temp
+        self.turbine_rpm = 0
+        generator_current = 0
 
-# Inputs
-# TODO: Find a way to initialize RPMs to zero w/o causing divide by zero...
-inputs = {
-    "requested_rod_position": 1,
-    "primary_pump_rpm": 1,
-    "secondary_relief_valve": False,
-}
+    def tick(self):
+        simulation_time++
+        
+        # Update rod position
+        if self.rod_position < self.target_rod_position:
+            self.rod_position++
+        if self.rod_position > self.target_rod_position:
+            self.rod_position--
 
-# Outputs
-outputs = { 
-    "actual_rod_position": 1,
-    "primary_temp": AMBIENT_TEMP,
-    "secondary_pressure": 0.0,
-    "turbine_rpm": 0,
-    "generator_current": 0.0,
-}
+        # TODO: Compute primary temp
+        # TODO: Compute primary pressure
+        # TODO: Compute secondary temp
+        # TODO: Compute secondary pressure
+        # TODO: Compute condenser temp
+        # TODO: Compute turbine RPM
+        # TODO: Compute generator current
 
+    def set_rod_position(self, position):
+        self.target_rod_position = position
 
-# Main loop
-while not shutdown:
+    def set_primary_pump_rpm(self, rpm):
+        self.primary_pump_rpm = rpm
 
-    # Display current status
-    print("---------------------------------------------")
-    print(f"Simulation time: {simulation_time}")
-    for k,v in outputs.items():
-        print(f"{k}\t\t{round(v,1)}")
-    print("---------------------------------------------")
+    def open_primary_relief_valve(self):
+        self.primary_relief_valve = True
 
-    # Get inputs
-    for k,v in inputs.items():
-        print(f"{k}\t{v}")
-    param = input("What would you like to change? ")
-    if param:
-        inputs[param] = int(input("What would you like to change it to? "))
-        # TODO: Test if requested value exceeds threshold
+    def close_primary_relief_valve(self):
+        self.primary_relief_valve = False
 
-    if input("Ready to quit yet? ") == "yes":
-        shutdown = True
+    def set_secondary_pump_rpm(self,rpm):
+        self.secondary_pump_rpm = rpm
 
+    def open_secondary_relief_valve(self):
+        self.secondary_relief_valve = True
 
-    # Calculate changes
-    # Each pass through this loop represents one second of simulation time
-    simulation_time += 1
+    def close_secondary_reief_valve(self):
+        self.secondary_relief_valve = False
 
-    # Rods can move one unit per second
-    if outputs["actual_rod_position"] > inputs["requested_rod_position"]:
-        outputs["actual_rod_position"] -= 1
-    if outputs["actual_rod_position"] < inputs["requested_rod_position"]:
-        outputs["actual_rod_position"] += 1
+    def set_condenser_pump_rpm(self, rpm):
+        self.condenser_pump_rpm = rpm
 
-    # primary temp
-    outputs["primary_temp"] = outputs["primary_temp"] + outputs["actual_rod_position"]
-    # Subtract pump effect
-    outputs["primary_temp"] = outputs["primary_temp"] - inputs["primary_pump_rpm"]
-    # TODO: Subtract for fuel depletion
-    # Never fall below ambient temp
-    if outputs["primary_temp"] < AMBIENT_TEMP:
-        outputs["primary_temp"] = AMBIENT_TEMP
-
-    # secondary pressure
-    # TODO: pressure should drop when primary temp drops
-    if outputs["primary_temp"] > MIN_STEAM_GENERATOR_TEMP:
-        outputs["secondary_pressure"] += (outputs["primary_temp"] * STEAM_GENERATOR_EFFICIENCY) / (100 - inputs["primary_pump_rpm"]) 
-
-    # turbine rpm
-    if outputs["secondary_pressure"] > MIN_TURBINE_PRESSURE:
-        outputs["turbine_rpm"] = round(outputs["secondary_pressure"])
-    else:
-        outputs["turbine_rpm"] = 0
-
-    # generator current
-    outputs["generator_current"] = (outputs["turbine_rpm"] * GENERATOR_EFFICIENCY)
+    def scram(self):
+        self.rod_position = 0
