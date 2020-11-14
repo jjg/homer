@@ -1,3 +1,5 @@
+import logging
+
 # Constants
 # By default all parameters range between 0-100%,
 # but some components only function within a 
@@ -27,16 +29,26 @@ class PWR:
         self.condenser_temp = self.ambient_temp
         self.turbine_rpm = 0
         self.generator_current = 0
+        self.scram_status = False
 
     def tick(self):
         self.simulation_time += 1
-        
+       
+        # Update SCRAM status
+        if self.target_rod_position == 0:
+            self.scram_status = False
+
         # Update rod position
         # TODO: Don't let rods go out of range (0-100%)
         if self.rod_position < self.target_rod_position:
             self.rod_position += 1
         if self.rod_position > self.target_rod_position:
             self.rod_position -= 1
+        # If the reactor is SCRAMed, force operator to manually reset
+        # rods before resuming operation
+        if self.scram_status:
+            logging.error("Reactor is SCRAMed, reset rod position to 0!")
+            self.rod_position = 0
 
         # Compute primary temp
         # TODO: Don't let temp go below ambient temp
@@ -86,11 +98,12 @@ class PWR:
     def open_secondary_relief_valve(self):
         self.secondary_relief_valve = True
 
-    def close_secondary_reief_valve(self):
+    def close_secondary_relief_valve(self):
         self.secondary_relief_valve = False
 
     def set_condenser_pump_rpm(self, rpm):
         self.condenser_pump_rpm = rpm
 
     def scram(self):
+        self.scram_status = True
         self.rod_position = 0
