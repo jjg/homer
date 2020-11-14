@@ -16,6 +16,19 @@ Right now there is a single reactor type ([Pressurized Water Reactor](https://en
 
 `python3 main.py`
 
+```
+----------------------------------
+Simulation time: 94
+Rod position: 34
+Primary temp: 214
+Secondary pressure: 20.605000000000004
+Turbine RPM: 21
+Generator current: 15.75
+----------------------------------
+command > 
+
+```
+
 Since the plan is to construct the simulator as a hardware project I probably won't put too much more effort into this script beyond testing basic "playability" of the simulation module.
 
 
