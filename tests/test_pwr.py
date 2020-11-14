@@ -49,3 +49,7 @@ def test_scram():
     reactor.tick()
     assert(reactor.rod_position == 0)
 
+# TODO: Rod position should never go out of range (0-100)
+# TODO: Temperatures should never go below ambient
+# TODO: RPMs should always be positive
+# TODO: Generator current should always be positive
