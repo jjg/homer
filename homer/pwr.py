@@ -65,6 +65,8 @@ class PWR:
         # TODO: Set alarm if pressure exceeds 100%
         if self.primary_temp > MIN_STEAM_GENERATOR_TEMP:
             self.secondary_pressure += self.primary_temp * (STEAM_GENERATOR_EFFICIENCY) / (100 - self.primary_pump_rpm)
+        else:
+            self.secondary_pressure = 0
 
         # TODO: Compute condenser temp
 
@@ -81,10 +83,14 @@ class PWR:
             self.generator_current = self.turbine_rpm * GENERATOR_EFFICIENCY
 
     def set_rod_position(self, position):
-        self.target_rod_position = position
+        if position in range(0,100):
+            self.target_rod_position = position
+        else:
+            return f"Rod position {position} is invalid, must be between 0 and 100"
 
     def set_primary_pump_rpm(self, rpm):
-        self.primary_pump_rpm = rpm
+        if rpm in range(0,100):
+            self.primary_pump_rpm = rpm
 
     def open_primary_relief_valve(self):
         self.primary_relief_valve = True
@@ -93,7 +99,8 @@ class PWR:
         self.primary_relief_valve = False
 
     def set_secondary_pump_rpm(self,rpm):
-        self.secondary_pump_rpm = rpm
+        if rpm in range(0,100):
+            self.secondary_pump_rpm = rpm
 
     def open_secondary_relief_valve(self):
         self.secondary_relief_valve = True
@@ -102,7 +109,8 @@ class PWR:
         self.secondary_relief_valve = False
 
     def set_condenser_pump_rpm(self, rpm):
-        self.condenser_pump_rpm = rpm
+        if rpm in range(0,100):
+            self.condenser_pump_rpm = rpm
 
     def scram(self):
         self.scram_status = True

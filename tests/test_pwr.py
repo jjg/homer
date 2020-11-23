@@ -61,7 +61,7 @@ def test_rod_range():
     reactor.set_rod_position(101)
     for i in range(0,105):
         reactor.tick()
-    assert(reactor.rod_position == 100)
+    assert(reactor.rod_position == 0)
 
 # Temperatures should never go below ambient
 def test_min_temp():
@@ -89,4 +89,15 @@ def test_min_rpm():
         and reactor.turbine_rpm > -1
     )
 
-# TODO: Generator current should always be positive
+# Generator current should always be positive
+def test_min_current():
+    reactor = pwr.PWR(55)
+    reactor.set_rod_position(50)
+    reactor.set_primary_pump_rpm(25)
+    reactor.set_secondary_pump_rpm(10)
+    while reactor.turbine_rpm < 10:
+        reactor.tick()
+    reactor.set_rod_position(0)
+    while reactor.turbine_rpm > 0:
+        reactor.tick()
+    assert(reactor.generator_current > -1)
