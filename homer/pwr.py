@@ -82,6 +82,8 @@ class PWR:
         if self.turbine_rpm > MIN_GENERATOR_RPM:
             self.generator_current = self.turbine_rpm * GENERATOR_EFFICIENCY
 
+        # TODO: Set alarm if any parameter exceeds its threshold
+
     def set_rod_position(self, position):
         if position in range(0,100):
             self.target_rod_position = position
