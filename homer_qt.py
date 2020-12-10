@@ -1,11 +1,13 @@
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QGridLayout, QDial, QPushButton, QLabel, QWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        
+        self.counter = 0
         
         self.setWindowTitle("Homer")
         
@@ -40,7 +42,17 @@ class MainWindow(QMainWindow):
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
         
+        # timer
+        self.timer = QTimer()
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.recurring_timer)
+        self.timer.start()
+        
     # Event handlers
+    def recurring_timer(self):
+        self.counter += 1
+        self.primary_temp_gauge.setValue(self.counter)
+        
     def primary_temp_value_changed(self, i):
         print(i)
         
