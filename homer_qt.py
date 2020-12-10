@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QDial, QPushButton, QLabel, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QGridLayout, QDial, QPushButton, QLabel, QWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -17,8 +17,11 @@ class MainWindow(QMainWindow):
         self.primary_temp_gauge.setRange(0,100)
         self.primary_temp_gauge.setSingleStep(1)
         self.primary_temp_gauge.setNotchesVisible(True)
+        self.primary_temp_gauge.valueChanged.connect(self.primary_temp_value_changed)
         
         self.primary_relief_valve = QPushButton("vent primary")
+        self.primary_relief_valve.setCheckable(True)
+        self.primary_relief_valve.clicked.connect(self.primary_relief_valve_clicked)
         
         primary_temp_layout = QVBoxLayout()
         primary_temp_layout.addWidget(self.primary_temp_label)
@@ -30,12 +33,19 @@ class MainWindow(QMainWindow):
         
         
         # Layout all the controls
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(primary_temp_widget)
+        main_layout = QGridLayout()
+        main_layout.addWidget(primary_temp_widget, 0, 0)
+        
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
-        
         self.setCentralWidget(main_widget)
+        
+    # Event handlers
+    def primary_temp_value_changed(self, i):
+        print(i)
+        
+    def primary_relief_valve_clicked(self, checked):
+        print(checked)
         
 app = QApplication(sys.argv)
 
