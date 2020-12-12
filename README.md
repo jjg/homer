@@ -2,6 +2,8 @@
 
 Experiments in simulating nuclear power plants.
 
+![Homer GUI screenshot](./img/homer_qt.png)
+
 ## Why
 
 For a long time I've wanted to play with a nuclear power plant simulator, and I have memories of a program like this from my childhood (real or imagined, I'm not sure).  I started this project because I thought it would be even more fun to play with a physical simulation, so the plan is to design a simplified operator console to provide a tactile interface to a reactor simulated in software.
@@ -28,6 +30,8 @@ Generator current: 15.75
 command > 
 
 ```
+
+There is also a [GUI](./homer_qt.py) (requires Qt) as shown above.
 
 Since the plan is to construct the simulator as a hardware project I probably won't put too much more effort into this script beyond testing basic "playability" of the simulation module.
 
