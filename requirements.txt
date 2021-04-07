@@ -1,5 +1,6 @@
 attrs==20.3.0
 blessed==1.18.0
+dashing==0.1.0
 iniconfig==1.1.1
 packaging==20.4
 pluggy==0.13.1
