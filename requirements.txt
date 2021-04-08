@@ -1,6 +1,6 @@
 attrs==20.3.0
 blessed==1.18.0
-dashing==0.1.0
+-e git+git@github.com:jjg/dashing.git@02a768f155ed04a29286e97e75c5ed5c7604f7c8#egg=dashing
 iniconfig==1.1.1
 packaging==20.4
 pluggy==0.13.1
