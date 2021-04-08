@@ -5,12 +5,13 @@ import homer.pwr
 
 term = Terminal()
 reactor = homer.pwr.PWR(55)
+reactor.tick()
 
 if __name__ == "__main__":
 
     # Create gauges for rod target, rod position, primary temp, secondary temp
     # turbine RPM and generator current
-    ui = HSplit(
+    ui = VSplit(
             HSplit(
                 VGauge(val=0, border_color=2, title="Rod Pos."),
                 VGauge(val=0, border_color=2, title="Pri Temp"),
@@ -18,27 +19,20 @@ if __name__ == "__main__":
                 VGauge(val=0, border_color=2, title="Turbine RPM"),
                 VGauge(val=0, border_color=2, title="Gen Curr")
             ),
-            title="Homer"
+            VSplit(
+                Log(title="Rod Set Position", border_color=6, color=5),
+                Log(title="Primary Pump RPM", border_color=6, color=5)
+            )
          )
     rod_pos = ui.items[0].items[0]
     pri_temp = ui.items[0].items[1]
     sec_temp = ui.items[0].items[2]
     turbine_rpm = ui.items[0].items[3]
     gen_curr = ui.items[0].items[4]
+    target_rod_pos = ui.items[1].items[0]
+    pri_pump_rpm = ui.items[1].items[1]
 
     ui.display()
-
-    #print(f"{term.home}{term.clear}")
-    #print("Reactor online.  Press 'q' to quit.")
-
-    #print(f"----------------------------------")
-    #print(f"Simulation time: {reactor.simulation_time}")
-    #print(f"Rod position: {reactor.rod_position}")
-    #print(f"Primary temp: {reactor.primary_temp}")
-    #print(f"Secondary pressure: {reactor.secondary_pressure}")
-    #print(f"Turbine RPM: {reactor.turbine_rpm}")
-    #print(f"Generator current: {reactor.generator_current}")
-    #print(f"----------------------------------")
 
     with term.cbreak():
         val = ""
@@ -54,18 +48,10 @@ if __name__ == "__main__":
                 sec_temp.value = reactor.secondary_pressure
                 turbine_rpm.value = reactor.turbine_rpm
                 gen_curr.value = reactor.generator_current
+                #target_rod_pos.append(reactor.target_rod_position)
+                #pri_pump_rpm.append(reactor.primary_pump_rpm)
 
                 ui.display()
-
-                #print(f"{term.home}{term.clear}")
-                #print(f"----------------------------------")
-                #print(f"Simulation time: {reactor.simulation_time}")
-                #print(f"Rod position: {reactor.rod_position}")
-                #print(f"Primary temp: {reactor.primary_temp}")
-                #print(f"Secondary pressure: {reactor.secondary_pressure}")
-                #print(f"Turbine RPM: {reactor.turbine_rpm}")
-                #print(f"Generator current: {reactor.generator_current}")
-                #print(f"----------------------------------")
 
             elif val.is_sequence:
                 print("got sequence: {0}.".format((str(val), val.name, val.code)))
