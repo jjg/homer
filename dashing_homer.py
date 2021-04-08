@@ -20,9 +20,12 @@ if __name__ == "__main__":
                 VGauge(val=0, border_color=2, title="Gen Curr")
             ),
             VSplit(
-                Log(title="Rod Set Position", border_color=6, color=5),
-                Log(title="Primary Pump RPM", border_color=6, color=5)
-            )
+                HGauge(val=0, border_color=6, color=5, title="Rod Target Position"),
+                HGauge(val=0, border_color=6, color=5, title="Primary Pump RPM")
+                #Log(title="Rod Set Position", border_color=6, color=5),
+                #Log(title="Primary Pump RPM", border_color=6, color=5)
+            ),
+            title="Homer"
          )
     rod_pos = ui.items[0].items[0]
     pri_temp = ui.items[0].items[1]
@@ -48,8 +51,8 @@ if __name__ == "__main__":
                 sec_temp.value = reactor.secondary_pressure
                 turbine_rpm.value = reactor.turbine_rpm
                 gen_curr.value = reactor.generator_current
-                #target_rod_pos.append(reactor.target_rod_position)
-                #pri_pump_rpm.append(reactor.primary_pump_rpm)
+                target_rod_pos = reactor.target_rod_position
+                pri_pump_rpm = reactor.primary_pump_rpm
 
                 ui.display()
 
@@ -57,8 +60,12 @@ if __name__ == "__main__":
                 print("got sequence: {0}.".format((str(val), val.name, val.code)))
             elif val: 
                 if val == "r":
-                    reactor.set_rod_position(int(input("\tposition> ")))
+                    reactor.set_rod_position(reactor.target_rod_position - 1)
+                if val == "R":
+                    reactor.set_rod_position(reactor.target_rod_position + 1)
                 if val == "p":
-                    reactor.set_primary_pump_rpm(int(input("\trpm> ")))
+                    reactor.set_primary_pump_rpm(reactor.primary_pump_rpm - 1)
+                if val == "P":
+                    reactor.set_primary_pump_rpm(reactor.primary_pump_rpm + 1)
                 if val == "s":
                     reactor.scram()
